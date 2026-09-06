@@ -1,0 +1,310 @@
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #f4f6f8;
+    color: #1f2937;
+}
+
+
+/* LOGIN */
+
+.login-container {
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.login-card {
+    background: white;
+    padding: 40px;
+    width: 400px;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+    text-align: center;
+}
+
+.login-card h1 {
+    margin-bottom: 5px;
+}
+
+.login-card input {
+    width: 100%;
+    padding: 12px;
+    margin-top: 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+}
+
+.login-card button {
+    width: 100%;
+    margin-top: 15px;
+}
+
+.demo-info {
+    margin-top: 20px;
+    font-size: 13px;
+    color: #6b7280;
+}
+
+
+/* HEADER */
+
+header {
+    background: #111827;
+    color: white;
+    padding: 18px 30px;
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+header h2 {
+    margin: 0;
+}
+
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.header-right button {
+    background: #374151;
+    color: white;
+}
+
+
+/* NAVIGATION */
+
+nav {
+    background: white;
+    padding: 10px 25px;
+
+    display: flex;
+    gap: 10px;
+
+    border-bottom: 1px solid #ddd;
+}
+
+nav button {
+    background: transparent;
+}
+
+nav button.active {
+    background: #111827;
+    color: white;
+}
+
+
+/* MAIN */
+
+main {
+    max-width: 1400px;
+    margin: auto;
+    padding: 30px;
+}
+
+button {
+    border: none;
+    padding: 10px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+button:hover {
+    opacity: 0.9;
+}
+
+.primary {
+    background: #111827;
+    color: white;
+}
+
+button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+
+/* CONNECTION */
+
+.online {
+    color: #22c55e;
+}
+
+.offline {
+    color: #ef4444;
+}
+
+.offline-banner {
+    background: #fee2e2;
+    color: #991b1b;
+    padding: 12px 30px;
+    font-weight: bold;
+}
+
+.offline-banner span {
+    margin-left: 20px;
+    font-weight: normal;
+}
+
+
+/* CARDS */
+
+.card {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 25px;
+}
+
+.card select {
+    padding: 12px;
+    width: 100%;
+}
+
+
+/* PRODUCTS */
+
+.products-grid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(auto-fit, minmax(200px, 1fr));
+
+    gap: 20px;
+}
+
+.product-card {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+
+    box-shadow:
+        0 2px 8px rgba(0,0,0,0.08);
+}
+
+.price {
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.quantity {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 20px;
+}
+
+.quantity button {
+    font-size: 20px;
+    width: 45px;
+}
+
+
+/* SUMMARY */
+
+.sale-summary {
+    margin-top: 30px;
+    background: white;
+    padding: 25px;
+    border-radius: 10px;
+}
+
+
+/* METRICS */
+
+.metrics {
+    display: grid;
+
+    grid-template-columns:
+        repeat(auto-fit, minmax(200px, 1fr));
+
+    gap: 20px;
+
+    margin-bottom: 40px;
+}
+
+.metric {
+    background: white;
+    padding: 25px;
+    border-radius: 10px;
+
+    box-shadow:
+        0 2px 8px rgba(0,0,0,0.08);
+}
+
+.metric span {
+    display: block;
+    color: #6b7280;
+    margin-bottom: 10px;
+}
+
+.metric strong {
+    font-size: 28px;
+}
+
+
+/* TABLE */
+
+table {
+    width: 100%;
+    background: white;
+    border-collapse: collapse;
+    margin-bottom: 35px;
+}
+
+th,
+td {
+    padding: 14px;
+    border-bottom: 1px solid #e5e7eb;
+    text-align: left;
+}
+
+th {
+    background: #f9fafb;
+}
+
+
+/* STATUS */
+
+.good {
+    color: #16a34a;
+    font-weight: bold;
+}
+
+.bad {
+    color: #dc2626;
+    font-weight: bold;
+}
+
+
+/* SYNC */
+
+.sync-card {
+    background: white;
+    padding: 30px;
+    border-radius: 10px;
+    margin-bottom: 30px;
+}
+
+.sync-card button {
+    margin-right: 10px;
+}
+
+.sync-message {
+    margin-top: 20px;
+    padding: 15px;
+    background: #eef2ff;
+    border-radius: 6px;
+}
+
+.error {
+    color: #dc2626;
+}

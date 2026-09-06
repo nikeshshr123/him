@@ -1,0 +1,1895 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        Himalaya Airlines OBS Management System
+    </title>
+
+    <link
+        rel="stylesheet"
+        href="style.css"
+    >
+</head>
+
+
+<body>
+
+<div id="app">
+
+    <!-- =====================================================
+         LOGIN
+         ===================================================== -->
+
+    <div
+        class="login-container"
+        v-if="!user"
+    >
+
+        <div class="login-card">
+
+            <img
+                src="logo.png"
+                alt="Himalaya Airlines"
+                width="150"
+            >
+
+            <h1>
+                HIMALAYA AIRLINES
+            </h1>
+
+            <p>
+                OBS Revenue Management System
+            </p>
+
+
+            <input
+                v-model="loginForm.employee_id"
+                placeholder="Employee ID"
+                autocomplete="username"
+                @keyup.enter="login"
+            >
+
+
+            <input
+                v-model="loginForm.password"
+                type="password"
+                placeholder="Password"
+                autocomplete="current-password"
+                @keyup.enter="login"
+            >
+
+
+            <button
+                class="primary"
+                @click="login"
+                :disabled="loggingIn"
+            >
+                {{
+                    loggingIn
+                        ? "LOGGING IN..."
+                        : "LOGIN"
+                }}
+            </button>
+
+
+            <p
+                v-if="loginError"
+                class="error"
+            >
+                {{ loginError }}
+            </p>
+
+
+            <div class="demo-info">
+
+                <strong>
+                    Demo Credentials
+                </strong>
+
+                <br><br>
+
+                Crew:
+                <b>CREW001 / 1234</b>
+
+                <br>
+
+                Management:
+                <b>MGT001 / 1234</b>
+
+                <br>
+
+                OBS:
+                <b>OBS001 / 1234</b>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         APPLICATION
+         ===================================================== -->
+
+    <div v-else>
+
+        <!-- =================================================
+             HEADER
+             ================================================= -->
+
+        <header>
+
+            <div class="brand">
+
+                <img
+                    src="logo.png"
+                    alt="Logo"
+                >
+
+                <div>
+
+                    <h2>
+                        HIMALAYA AIRLINES
+                    </h2>
+
+                    <small>
+                        OBS REVENUE MANAGEMENT SYSTEM
+                    </small>
+
+                </div>
+
+            </div>
+
+
+            <div class="header-right">
+
+                <span
+                    :class="
+                        online
+                            ? 'online'
+                            : 'offline'
+                    "
+                >
+
+                    ●
+
+                    {{
+                        online
+                            ? "ONLINE"
+                            : "OFFLINE"
+                    }}
+
+                </span>
+
+
+                <span>
+                    {{ user.name }}
+                </span>
+
+
+                <button
+                    @click="logout"
+                >
+                    Logout
+                </button>
+
+            </div>
+
+        </header>
+
+
+        <!-- =================================================
+             OFFLINE BANNER
+             ================================================= -->
+
+        <div
+            class="offline-banner"
+            v-if="!online"
+        >
+
+            <strong>
+                ⚠ OFFLINE MODE
+            </strong>
+
+            <span>
+                Sales will be stored locally and synchronized
+                automatically when internet connectivity is restored.
+            </span>
+
+        </div>
+
+
+        <!-- =================================================
+             NAVIGATION
+             ================================================= -->
+
+        <nav>
+
+            <button
+                @click="page='crew'"
+                :class="{ active: page === 'crew' }"
+            >
+                Crew Sales
+            </button>
+
+
+            <button
+                @click="page='inventory'"
+                :class="{ active: page === 'inventory' }"
+            >
+                Inventory
+            </button>
+
+
+            <button
+                @click="page='dashboard'"
+                :class="{ active: page === 'dashboard' }"
+            >
+                Management Dashboard
+            </button>
+
+
+            <button
+                @click="page='sync'"
+                :class="{ active: page === 'sync' }"
+            >
+                Synchronization
+            </button>
+
+        </nav>
+
+
+        <main>
+
+
+            <!-- =================================================
+                 CREW SALES
+                 ================================================= -->
+
+            <section v-if="page === 'crew'">
+
+                <h1>
+                    Crew OBS Sales
+                </h1>
+
+
+                <!-- FLIGHT ENTRY -->
+
+                <div class="card flight-entry-card">
+
+                    <h2 class="section-title">
+                        Enter Flight Details
+                    </h2>
+
+
+                    <div class="form-grid">
+
+
+                        <div>
+
+                            <label>
+                                Flight Number
+                            </label>
+
+                            <input
+                                v-model="flightForm.flight_number"
+                                class="form-input"
+                                placeholder="e.g. H9-123"
+                            >
+
+                        </div>
+
+
+                        <div>
+
+                            <label>
+                                Flight Date
+                            </label>
+
+                            <input
+                                type="date"
+                                v-model="flightForm.flight_date"
+                                class="form-input"
+                            >
+
+                        </div>
+
+
+                        <div>
+
+                            <label>
+                                Aircraft
+                            </label>
+
+                            <input
+                                v-model="flightForm.aircraft"
+                                class="form-input"
+                                placeholder="e.g. 9N-ABC"
+                            >
+
+                        </div>
+
+
+                        <div>
+
+                            <label>
+                                PAX Load
+                            </label>
+
+                            <input
+                                type="number"
+                                min="1"
+                                v-model.number="flightForm.passengers"
+                                class="form-input"
+                                placeholder="Passenger count"
+                            >
+
+                        </div>
+
+
+                        <div>
+
+                            <label>
+                                From
+                            </label>
+
+                            <input
+                                v-model="flightForm.origin"
+                                class="form-input"
+                                placeholder="e.g. KTM"
+                                maxlength="3"
+                            >
+
+                        </div>
+
+
+                        <div>
+
+                            <label>
+                                To
+                            </label>
+
+                            <input
+                                v-model="flightForm.destination"
+                                class="form-input"
+                                placeholder="e.g. DXB"
+                                maxlength="3"
+                            >
+
+                        </div>
+
+                    </div>
+
+
+                    <button
+                        class="primary save-flight-button"
+                        @click="createFlight"
+                        :disabled="creatingFlight"
+                    >
+
+                        {{
+                            creatingFlight
+                                ? "SAVING FLIGHT..."
+                                : "SAVE / START FLIGHT"
+                        }}
+
+                    </button>
+
+
+                    <p
+                        v-if="flightError"
+                        class="error"
+                    >
+                        {{ flightError }}
+                    </p>
+
+                </div>
+
+
+                <!-- ACTIVE FLIGHT -->
+
+                <div class="card">
+
+                    <label>
+                        Active Flight
+                    </label>
+
+                    <select
+                        v-model="selectedFlight"
+                    >
+
+                        <option
+                            v-for="flight in flights"
+                            :key="flight.id"
+                            :value="flight.id"
+                        >
+
+                            {{ flight.flight_number }}
+                            —
+                            {{ flight.origin }}
+                            →
+                            {{ flight.destination }}
+                            —
+                            {{ flight.passengers }}
+                            passengers
+                            —
+                            {{ flight.flight_date }}
+
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <!-- PRODUCTS -->
+
+                <div class="products-grid">
+
+                    <div
+                        class="product-card"
+                        v-for="product in products"
+                        :key="product.id"
+                    >
+
+                        <h3>
+                            {{ product.product_name }}
+                        </h3>
+
+
+                        <p class="price">
+
+                            USD
+                            {{
+                                Number(
+                                    product.selling_price || 0
+                                ).toFixed(2)
+                            }}
+
+                        </p>
+
+
+                        <div
+                            class="stock-display"
+                            :class="{
+                                'stock-empty':
+                                    getAvailableQuantity(product.id) === 0,
+
+                                'stock-low':
+                                    getAvailableQuantity(product.id) > 0 &&
+                                    getAvailableQuantity(product.id) <= 5
+                            }"
+                        >
+
+                            <span>
+                                Available
+                            </span>
+
+
+                            <strong
+                                v-if="
+                                    getAvailableQuantity(product.id) > 0
+                                "
+                            >
+                                {{ getAvailableQuantity(product.id) }}
+                            </strong>
+
+
+                            <strong v-else>
+                                SOLD OUT
+                            </strong>
+
+                        </div>
+
+
+                        <div class="quantity">
+
+                            <button
+                                @click="decrease(product)"
+                                :disabled="!cart[product.id]"
+                            >
+                                −
+                            </button>
+
+
+                            <strong>
+                                {{ cart[product.id] || 0 }}
+                            </strong>
+
+
+                            <button
+                                @click="increase(product)"
+                                :disabled="
+                                    getAvailableQuantity(product.id)
+                                    <=
+                                    (cart[product.id] || 0)
+                                "
+                            >
+                                +
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- SALE SUMMARY -->
+
+                <div class="sale-summary">
+
+                    <h2>
+                        Sale Summary
+                    </h2>
+
+
+                    <template
+                        v-for="product in products"
+                        :key="'summary-' + product.id"
+                    >
+
+                        <div
+                            v-if="cart[product.id]"
+                            class="summary-item"
+                        >
+
+                            <span>
+
+                                {{ product.product_name }}
+
+                                ×
+
+                                {{ cart[product.id] }}
+
+                            </span>
+
+
+                            <strong>
+
+                                USD
+
+                                {{
+                                    (
+                                        cart[product.id] *
+                                        Number(
+                                            product.selling_price || 0
+                                        )
+                                    ).toFixed(2)
+                                }}
+
+                            </strong>
+
+                        </div>
+
+                    </template>
+
+
+                    <hr>
+
+
+                    <div class="summary-row">
+
+                        <span>
+                            Total Revenue (USD)
+                        </span>
+
+                        <strong>
+                            USD {{ formattedUsdTotal }}
+                        </strong>
+
+                    </div>
+
+
+                    <!-- PAYMENT CURRENCY -->
+
+                    <div class="currency-section">
+
+                        <label>
+                            Payment Currency
+                        </label>
+
+
+                        <select
+                            v-model="selectedCurrency"
+                            class="currency-select"
+                        >
+
+                            <option
+                                v-for="currency in currencies"
+                                :key="currency.code"
+                                :value="currency.code"
+                            >
+
+                                {{ currency.code }}
+                                —
+                                {{ currency.name }}
+
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    <!-- EXCHANGE RATE -->
+
+                    <div class="exchange-box">
+
+                        <div>
+
+                            <span>
+                                Exchange Rate
+                            </span>
+
+                            <strong>
+
+                                1 USD =
+
+                                {{
+                                    Number(
+                                        exchangeRate
+                                    ).toFixed(4)
+                                }}
+
+                                {{ selectedCurrency }}
+
+                            </strong>
+
+                        </div>
+
+
+                        <div
+                            v-if="exchangeLoading"
+                        >
+                            Updating exchange rate...
+                        </div>
+
+
+                        <div
+                            v-if="exchangeError"
+                            class="exchange-warning"
+                        >
+
+                            ⚠ {{ exchangeError }}
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- CUSTOMER PAYMENT -->
+
+                    <div class="customer-payment">
+
+                        <span>
+                            Amount to Collect
+                        </span>
+
+                        <strong>
+
+                            {{ currencySymbol }}
+
+                            {{ formattedCustomerAmount }}
+
+                            {{ selectedCurrency }}
+
+                        </strong>
+
+                    </div>
+
+
+                    <div class="usd-conversion">
+
+                        <span>
+                            System Revenue
+                        </span>
+
+                        <strong>
+                            USD {{ formattedUsdTotal }}
+                        </strong>
+
+                    </div>
+
+
+                    <hr>
+
+
+                    <h2 class="final-total">
+
+                        TOTAL:
+
+                        USD {{ formattedUsdTotal }}
+
+                    </h2>
+
+
+                    <button
+                        class="primary"
+                        @click="recordSale"
+                        :disabled="
+                            Number(cartTotal || 0) === 0 ||
+                            !selectedFlight
+                        "
+                    >
+                        RECORD SALE
+                    </button>
+
+                </div>
+
+            </section>
+
+
+
+            <!-- =================================================
+                 INVENTORY
+                 ================================================= -->
+
+            <section v-if="page === 'inventory'">
+
+                <h1>
+                    Flight Inventory
+                </h1>
+
+
+                <div class="card">
+
+                    <label>
+                        Select Flight
+                    </label>
+
+
+                    <select
+                        v-model="selectedFlight"
+                    >
+
+                        <option
+                            v-for="flight in flights"
+                            :key="flight.id"
+                            :value="flight.id"
+                        >
+
+                            {{ flight.flight_number }}
+                            —
+                            {{ flight.origin }}
+                            →
+                            {{ flight.destination }}
+                            —
+                            {{ flight.flight_date }}
+
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <table>
+
+                    <thead>
+
+                        <tr>
+
+                            <th>
+                                Product
+                            </th>
+
+                            <th>
+                                Loaded
+                            </th>
+
+                            <th>
+                                Sold
+                            </th>
+
+                            <th>
+                                Returned
+                            </th>
+
+                            <th>
+                                Wasted
+                            </th>
+
+                            <th>
+                                Remaining
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody>
+
+                        <tr
+                            v-for="item in inventory"
+                            :key="item.product_id"
+                        >
+
+                            <td>
+                                {{ item.product_name }}
+                            </td>
+
+                            <td>
+                                {{ item.loaded_quantity }}
+                            </td>
+
+                            <td>
+                                {{ item.sold_quantity }}
+                            </td>
+
+                            <td>
+                                {{ item.returned_quantity }}
+                            </td>
+
+                            <td>
+                                {{ item.wasted_quantity }}
+                            </td>
+
+                            <td>
+
+                                <b
+                                    :class="{
+                                        'bad':
+                                            item.remaining_quantity === 0,
+
+                                        'good':
+                                            item.remaining_quantity > 5
+                                    }"
+                                >
+                                    {{ item.remaining_quantity }}
+                                </b>
+
+                            </td>
+
+                        </tr>
+
+
+                        <tr
+                            v-if="
+                                !inventory ||
+                                inventory.length === 0
+                            "
+                        >
+
+                            <td
+                                colspan="6"
+                                class="empty-table"
+                            >
+                                No inventory data available.
+                            </td>
+
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+            </section>
+
+
+
+            <!-- =================================================
+                 DASHBOARD
+                 ================================================= -->
+
+            <section v-if="page === 'dashboard'">
+
+                <h1>
+                    Management Dashboard
+                </h1>
+
+
+                <!-- REPORT DATE FILTER -->
+
+                <div class="report-date-card">
+
+                    <div class="report-date-header">
+
+                        <div>
+
+                            <h2>
+                                Report Date
+                            </h2>
+
+                            <p>
+                                Select the period you want to analyze
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="date-filter-grid">
+
+
+                        <!-- YEAR -->
+
+                        <div class="date-filter-item">
+
+                            <label for="dashboard-year">
+
+                                <span class="filter-icon">
+                                    📅
+                                </span>
+
+                                Year
+
+                            </label>
+
+
+                            <div class="custom-select-wrapper">
+
+                                <select
+                                    id="dashboard-year"
+                                    v-model.number="dashboardFilter.year"
+                                    class="date-select"
+                                    @change="applyDashboardFilter"
+                                >
+
+                                    <option
+                                        v-for="year in yearOptions"
+                                        :key="year"
+                                        :value="year"
+                                    >
+                                        {{ year }}
+                                    </option>
+
+                                </select>
+
+                            </div>
+
+                        </div>
+
+
+
+                        <!-- MONTH -->
+
+                        <div class="date-filter-item">
+
+                            <label for="dashboard-month">
+
+                                <span class="filter-icon">
+                                    📆
+                                </span>
+
+                                Month
+
+                            </label>
+
+
+                            <div class="custom-select-wrapper">
+
+                                <select
+                                    id="dashboard-month"
+                                    v-model.number="dashboardFilter.month"
+                                    class="date-select"
+                                    @change="applyDashboardFilter"
+                                >
+
+                                    <option :value="null">
+                                        All Months
+                                    </option>
+
+
+                                    <option
+                                        v-for="month in monthOptions"
+                                        :key="month.value"
+                                        :value="month.value"
+                                    >
+                                        {{ month.label }}
+                                    </option>
+
+                                </select>
+
+                            </div>
+
+                        </div>
+
+
+
+                        <!-- DAY -->
+
+                        <div class="date-filter-item">
+
+                            <label for="dashboard-day">
+
+                                <span class="filter-icon">
+                                    📌
+                                </span>
+
+                                Day
+
+                            </label>
+
+
+                            <div class="custom-select-wrapper">
+
+                                <select
+                                    id="dashboard-day"
+                                    v-model.number="dashboardFilter.day"
+                                    class="date-select"
+                                    @change="applyDashboardFilter"
+                                >
+
+                                    <option :value="null">
+                                        All Days
+                                    </option>
+
+
+                                    <option
+                                        v-for="day in dayOptions"
+                                        :key="day"
+                                        :value="day"
+                                    >
+                                        {{ day }}
+                                    </option>
+
+                                </select>
+
+                            </div>
+
+                        </div>
+
+
+
+                        <!-- RESET -->
+
+                        <div class="date-filter-actions">
+
+                            <button
+                                type="button"
+                                class="reset-date-btn"
+                                @click="resetDashboardFilter"
+                            >
+
+                                ↻
+
+                                Reset
+
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+
+                <!-- METRICS -->
+
+                <div class="metrics">
+
+
+                    <div class="metric">
+
+                        <span>
+                            Current RPP
+                        </span>
+
+                        <strong>
+
+                            USD
+
+                            {{
+                                Number(
+                                    dashboard.rpp || 0
+                                ).toFixed(2)
+                            }}
+
+                        </strong>
+
+                    </div>
+
+
+                    <div class="metric">
+
+                        <span>
+                            Target RPP
+                        </span>
+
+                        <strong>
+
+                            USD
+
+                            {{
+                                Number(
+                                    dashboard.target_rpp || 0
+                                ).toFixed(2)
+                            }}
+
+                        </strong>
+
+                    </div>
+
+
+                    <div class="metric">
+
+                        <span>
+                            RPP Gap
+                        </span>
+
+                        <strong
+                            :class="
+                                Number(dashboard.gap || 0) >= 0
+                                    ? 'good'
+                                    : 'bad'
+                            "
+                        >
+
+                            USD
+
+                            {{
+                                Number(
+                                    dashboard.gap || 0
+                                ).toFixed(2)
+                            }}
+
+                        </strong>
+
+                    </div>
+
+
+                    <div class="metric">
+
+                        <span>
+                            Achievement
+                        </span>
+
+                        <strong>
+
+                            {{
+                                Number(
+                                    dashboard.achievement || 0
+                                ).toFixed(1)
+                            }}%
+
+                        </strong>
+
+                    </div>
+
+
+                    <div class="metric">
+
+                        <span>
+                            Total Revenue
+                        </span>
+
+                        <strong>
+
+                            USD
+
+                            {{
+                                Number(
+                                    dashboard.revenue || 0
+                                ).toFixed(2)
+                            }}
+
+                        </strong>
+
+                    </div>
+
+
+                    <div class="metric">
+
+                        <span>
+                            Passengers
+                        </span>
+
+                        <strong>
+                            {{ dashboard.passengers || 0 }}
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+
+                <!-- FLIGHT PERFORMANCE -->
+
+                <div class="section-header">
+
+                    <div>
+
+                        <h2>
+                            Flight Performance
+                        </h2>
+
+                        <p class="section-description">
+                            Performance of flights for the selected period
+                        </p>
+
+                    </div>
+
+
+                    <button
+                        class="chart-toggle"
+                        @click="toggleChart"
+                    >
+
+                        {{
+                            chartVisible
+                                ? "SHOW TABLE"
+                                : "VIEW CHART"
+                        }}
+
+                    </button>
+
+                </div>
+
+
+
+                <!-- TABLE -->
+
+                <div
+                    v-if="!chartVisible"
+                    class="table-wrapper"
+                >
+
+                    <table>
+
+                        <thead>
+
+                            <tr>
+
+                                <th>
+                                    Flight
+                                </th>
+
+                                <th>
+                                    Route
+                                </th>
+
+                                <th>
+                                    Date
+                                </th>
+
+                                <th>
+                                    Passengers
+                                </th>
+
+                                <th>
+                                    Revenue
+                                </th>
+
+                                <th>
+                                    RPP
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody>
+
+                            <tr
+                                v-for="flight in dashboard.flights"
+                                :key="flight.id"
+                            >
+
+                                <td>
+
+                                    <strong>
+                                        {{ flight.flight_number }}
+                                    </strong>
+
+                                </td>
+
+
+                                <td>
+
+                                    {{ flight.origin }}
+
+                                    →
+
+                                    {{ flight.destination }}
+
+                                </td>
+
+
+                                <td>
+                                    {{ flight.flight_date }}
+                                </td>
+
+
+                                <td>
+                                    {{ flight.passengers }}
+                                </td>
+
+
+                                <td>
+
+                                    USD
+
+                                    {{
+                                        Number(
+                                            flight.revenue || 0
+                                        ).toFixed(2)
+                                    }}
+
+                                </td>
+
+
+                                <td
+                                    :class="
+                                        Number(
+                                            flight.rpp || 0
+                                        ) >= 2
+                                            ? 'good'
+                                            : 'bad'
+                                    "
+                                >
+
+                                    USD
+
+                                    {{
+                                        Number(
+                                            flight.rpp || 0
+                                        ).toFixed(2)
+                                    }}
+
+                                </td>
+
+                            </tr>
+
+
+                            <tr
+                                v-if="
+                                    !dashboard.flights ||
+                                    dashboard.flights.length === 0
+                                "
+                            >
+
+                                <td
+                                    colspan="6"
+                                    class="empty-table"
+                                >
+
+                                    No flight performance data
+                                    available for this date.
+
+                                </td>
+
+                            </tr>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+
+
+                <!-- CHART -->
+
+                <div
+                    v-if="chartVisible"
+                    class="chart-card"
+                >
+
+                    <div class="chart-controls">
+
+                        <button
+                            :class="{
+                                'active-chart':
+                                    chartType === 'line'
+                            }"
+                            @click="chartType='line'"
+                        >
+                            LINE — RPP
+                        </button>
+
+
+                        <button
+                            :class="{
+                                'active-chart':
+                                    chartType === 'bar'
+                            }"
+                            @click="chartType='bar'"
+                        >
+                            BAR — REVENUE
+                        </button>
+
+                    </div>
+
+
+                    <div class="chart-container">
+
+                        <canvas
+                            id="flightPerformanceChart"
+                        ></canvas>
+
+                    </div>
+
+                </div>
+
+
+
+                <!-- PRODUCT PERFORMANCE -->
+
+                <h2>
+                    Product Performance
+                </h2>
+
+
+                <table>
+
+                    <thead>
+
+                        <tr>
+
+                            <th>
+                                Product
+                            </th>
+
+                            <th>
+                                Quantity Sold
+                            </th>
+
+                            <th>
+                                Revenue
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody>
+
+                        <tr
+                            v-for="product in dashboard.products"
+                            :key="product.product_name"
+                        >
+
+                            <td>
+                                {{ product.product_name }}
+                            </td>
+
+                            <td>
+                                {{ product.quantity_sold || 0 }}
+                            </td>
+
+                            <td>
+
+                                USD
+
+                                {{
+                                    Number(
+                                        product.revenue || 0
+                                    ).toFixed(2)
+                                }}
+
+                            </td>
+
+                        </tr>
+
+
+                        <tr
+                            v-if="
+                                !dashboard.products ||
+                                dashboard.products.length === 0
+                            "
+                        >
+
+                            <td
+                                colspan="3"
+                                class="empty-table"
+                            >
+
+                                No product performance data available.
+
+                            </td>
+
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+            </section>
+
+
+
+            <!-- =================================================
+                 SYNCHRONIZATION
+                 ================================================= -->
+
+            <!-- =================================================
+     SYNCHRONIZATION
+     ================================================= -->
+
+<section v-if="page === 'sync'" class="sync-page">
+
+    <!-- PAGE HEADER -->
+    <div class="sync-page-header">
+
+        <div>
+            <span class="page-eyebrow">
+                SYSTEM CONNECTIVITY
+            </span>
+
+            <h1>
+                Synchronization
+            </h1>
+
+            <p>
+                Offline transactions are synchronized automatically
+                when the internet connection is restored.
+            </p>
+        </div>
+
+        <div
+            class="sync-header-status"
+            :class="online ? 'status-online' : 'status-offline'"
+        >
+            <span class="status-dot"></span>
+
+            <div>
+                <strong>
+                    {{ online ? 'ONLINE' : 'OFFLINE' }}
+                </strong>
+
+                <small>
+                    {{
+                        online
+                            ? 'Connection active'
+                            : 'Waiting for connection'
+                    }}
+                </small>
+            </div>
+        </div>
+
+    </div>
+
+
+    <!-- =================================================
+         STATUS OVERVIEW
+         ================================================= -->
+
+    <div class="sync-overview">
+
+        <!-- CONNECTION CARD -->
+        <div class="sync-info-card">
+
+            <div class="sync-card-icon connection-icon">
+                <span>⌁</span>
+            </div>
+
+            <div class="sync-card-content">
+
+                <span class="sync-card-label">
+                    Device Connection
+                </span>
+
+                <strong
+                    :class="online ? 'text-online' : 'text-offline'"
+                >
+                    {{ online ? 'Connected' : 'Offline' }}
+                </strong>
+
+                <p>
+                    {{
+                        online
+                            ? 'The device can communicate with the server.'
+                            : 'Transactions will remain safely stored on this device.'
+                    }}
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <!-- PENDING CARD -->
+        <div class="sync-info-card">
+
+            <div class="sync-card-icon pending-icon">
+                <span>↻</span>
+            </div>
+
+            <div class="sync-card-content">
+
+                <span class="sync-card-label">
+                    Pending Transactions
+                </span>
+
+                <strong>
+                    {{ pendingSales.length }}
+                </strong>
+
+                <p>
+                    {{
+                        pendingSales.length > 0
+                            ? 'Waiting to be synchronized.'
+                            : 'All transactions are synchronized.'
+                    }}
+                </p>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =================================================
+         AUTOMATIC SYNC STATUS
+         ================================================= -->
+
+    <div
+        class="automatic-sync-card"
+        :class="online ? 'automatic-sync-online' : 'automatic-sync-offline'"
+    >
+
+        <div class="automatic-sync-icon">
+
+            <span v-if="online">
+                ✓
+            </span>
+
+            <span v-else>
+                ⏳
+            </span>
+
+        </div>
+
+
+        <div class="automatic-sync-content">
+
+            <div class="automatic-sync-title">
+
+                <strong>
+                    Automatic Synchronization
+                </strong>
+
+                <span
+                    class="auto-badge"
+                    :class="online ? 'auto-badge-active' : 'auto-badge-waiting'"
+                >
+                    {{
+                        online
+                            ? 'ACTIVE'
+                            : 'WAITING'
+                    }}
+                </span>
+
+            </div>
+
+            <p>
+
+                {{ syncMessage || (
+                    online
+                        ? 'Your device is connected. Any pending transactions will be synchronized automatically.'
+                        : 'Your device is offline. Pending transactions will be synchronized automatically when the connection is restored.'
+                ) }}
+
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <!-- =================================================
+         PENDING TRANSACTIONS
+         ================================================= -->
+
+    <div class="pending-section">
+
+        <div class="pending-section-header">
+
+            <div>
+
+                <span class="page-eyebrow">
+                    LOCAL TRANSACTION QUEUE
+                </span>
+
+                <h2>
+                    Pending Transactions
+                </h2>
+
+            </div>
+
+            <div
+                class="pending-count"
+                :class="pendingSales.length > 0
+                    ? 'pending-count-active'
+                    : 'pending-count-empty'"
+            >
+                {{ pendingSales.length }}
+
+                <span>
+                    pending
+                </span>
+            </div>
+
+        </div>
+
+
+        <div class="pending-table-card">
+
+            <div class="table-responsive">
+
+                <table class="pending-table">
+
+                    <thead>
+
+                        <tr>
+
+                            <th>
+                                Transaction ID
+                            </th>
+
+                            <th>
+                                Flight
+                            </th>
+
+                            <th>
+                                Product
+                            </th>
+
+                            <th>
+                                Quantity
+                            </th>
+
+                            <th>
+                                Amount
+                            </th>
+
+                            <th>
+                                Status
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody>
+
+                        <tr
+                            v-for="sale in pendingSales"
+                            :key="sale.transaction_id"
+                        >
+
+                            <td>
+
+                                <span class="transaction-id">
+                                    {{ sale.transaction_id }}
+                                </span>
+
+                            </td>
+
+                            <td>
+
+                                <span class="flight-badge">
+                                    #{{ sale.flight_id }}
+                                </span>
+
+                            </td>
+
+                            <td>
+                                Product #{{ sale.product_id }}
+                            </td>
+
+                            <td>
+                                {{ sale.quantity }}
+                            </td>
+
+                            <td>
+
+                                <strong>
+                                    USD
+                                    {{
+                                        Number(
+                                            sale.total_amount || 0
+                                        ).toFixed(2)
+                                    }}
+                                </strong>
+
+                            </td>
+
+                            <td>
+
+                                <span class="pending-status">
+                                    <span class="mini-status-dot"></span>
+                                    PENDING
+                                </span>
+
+                            </td>
+
+                        </tr>
+
+
+                        <!-- EMPTY STATE -->
+
+                        <tr
+                            v-if="
+                                !pendingSales ||
+                                pendingSales.length === 0
+                            "
+                        >
+
+                            <td
+                                colspan="6"
+                                class="pending-empty"
+                            >
+
+                                <div class="empty-state">
+
+                                    <div class="empty-state-icon">
+                                        ✓
+                                    </div>
+
+                                    <strong>
+                                        No Pending Transactions
+                                    </strong>
+
+                                    <p>
+                                        All transactions have been
+                                        synchronized successfully.
+                                    </p>
+
+                                </div>
+
+                            </td>
+
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+        </main>
+
+    </div>
+
+</div>
+
+
+
+<!-- =========================================================
+     VUE
+     ========================================================= -->
+
+<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+
+
+<!-- =========================================================
+     CHART.JS
+     ========================================================= -->
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+
+<!-- =========================================================
+     APPLICATION
+     ========================================================= -->
+
+<script src="app.js"></script>
+
+</body>
+
+</html>
